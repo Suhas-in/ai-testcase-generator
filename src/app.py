@@ -13,7 +13,10 @@ app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
 
 # Absolute path (important for deployment)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "database", "app.db")
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "..", "database", "app.db")
 
 
 # =========================
