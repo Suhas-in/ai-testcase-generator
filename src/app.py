@@ -8,16 +8,57 @@ from generator import generate_pdf_from_text
 # =========================
 app = Flask(__name__)
 
-# Use environment secret in production
+# Secret key (Render-safe)
 app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
 
-# Absolute path (important for deployment)
+# Absolute paths (important for Render deployment)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-import os
+DB_DIR = os.path.join(BASE_DIR, "..", "database")
+DB_PATH = os.path.join(DB_DIR, "app.db")
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "..", "database", "app.db")
+# Ensure database folder exists
+os.makedirs(DB_DIR, exist_ok=True)
 
+# =========================
+# AUTO INITIALIZE DATABASE
+# =========================
+def initialize_database():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # USERS TABLE
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role TEXT NOT NULL
+    )
+    """)
+
+    # TEST CASE LOGS TABLE
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS test_case_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        requirements TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    # DEFAULT USERS
+    cursor.execute("""
+    INSERT OR IGNORE INTO users (username, password, role)
+    VALUES 
+    ('admin', 'admin123', 'admin'),
+    ('tester', 'test123', 'user')
+    """)
+
+    conn.commit()
+    conn.close()
+
+# Initialize database at startup
+initialize_database()
 
 # =========================
 # LOGIN
@@ -50,9 +91,8 @@ def login():
 
     return render_template("login.html")
 
-
 # =========================
-# DASHBOARD (ADMIN ONLY)
+# DASHBOARD (ADMIN)
 # =========================
 @app.route("/dashboard")
 def dashboard():
@@ -94,7 +134,6 @@ def dashboard():
         recent_logs=recent_logs
     )
 
-
 # =========================
 # GENERATE TEST CASES
 # =========================
@@ -114,7 +153,6 @@ def generate():
             session["pdf_path"] = file_path
 
     return render_template("generate.html", preview=preview)
-
 
 # =========================
 # ADMIN LOGS
@@ -138,7 +176,6 @@ def view_logs():
 
     return render_template("logs.html", logs=logs)
 
-
 # =========================
 # DOWNLOAD PDF
 # =========================
@@ -154,7 +191,6 @@ def download():
 
     return send_file(file_path, as_attachment=True)
 
-
 # =========================
 # LOGOUT
 # =========================
@@ -163,11 +199,9 @@ def logout():
     session.clear()
     return redirect("/")
 
-
 # =========================
-# PRODUCTION ENTRY POINT
+# RUN SERVER
 # =========================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
-
+    app.run(host="0.0.0.0", port=port)

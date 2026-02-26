@@ -1,9 +1,16 @@
 import sqlite3
 import os
 
-os.makedirs("database", exist_ok=True)
+# Get absolute base directory (important for Render)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_DIR = os.path.join(BASE_DIR, "..", "database")
+DB_PATH = os.path.join(DB_DIR, "app.db")
 
-conn = sqlite3.connect("database/app.db")
+# Create database folder if not exists
+os.makedirs(DB_DIR, exist_ok=True)
+
+# Connect database
+conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
 
 # USERS TABLE
@@ -16,7 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
 )
 """)
 
-# TEST CASE LOGS TABLE  ✅ (NEW)
+# TEST CASE LOGS TABLE
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS test_case_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
