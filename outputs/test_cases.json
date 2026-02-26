@@ -1,0 +1,38 @@
+{
+    "requirement": "User should be able to login using valid username and password\nUser should be able to logout successfully",
+    "total_test_cases": 3,
+    "test_cases": [
+        {
+            "id": "TC_01",
+            "title": "Login with valid credentials",
+            "steps": [
+                "Open login page",
+                "Enter valid username",
+                "Enter valid password",
+                "Click Login"
+            ],
+            "expected_result": "User should be logged in successfully"
+        },
+        {
+            "id": "TC_02",
+            "title": "Login with invalid password",
+            "steps": [
+                "Open login page",
+                "Enter valid username",
+                "Enter invalid password",
+                "Click Login"
+            ],
+            "expected_result": "Error message should be displayed"
+        },
+        {
+            "id": "TC_03",
+            "title": "Login with empty fields",
+            "steps": [
+                "Open login page",
+                "Leave username and password empty",
+                "Click Login"
+            ],
+            "expected_result": "Validation message should be shown"
+        }
+    ]
+}

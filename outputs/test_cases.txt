@@ -1,0 +1,13 @@
+Test Case Title: Login with Valid Username and Password
+Step 1: Prompt user for username and password
+Expected Result: Successful login
+Reasoning (Why this test case is important): This test case validates that the application correctly prompts the user for their username and password, ensuring they enter them correctly.
+Step 2: Check if username exists in database
+Expected Result: Username found and password entered
+Reasoning (Why this test case is important): This test case verifies that a successful login occurs when the application successfully retrieves and validates a user's credentials from the database. If the username does not exist, an error message should be displayed to the user.
+Step 3: Check if password matches entered password
+Expected Result: Password verified and user logged in
+Reasoning (Why this test case is important): This test case ensures that when a successful login occurs, the application properly retrieves and validates a user's credentials for authentication purposes. A potential security issue could arise if passwords were not validated properly during login.
+Step 4: Verify user can access relevant resources and pages
+Expected Result: Successful login and access to relevant resources and pages
+Reasoning (Why this test case is important): This test case ensures that users who log in successfully are able to access the application's most essential features, such as accessing specific products or services.

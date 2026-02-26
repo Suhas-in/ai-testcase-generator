@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-page">
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h2>AI Panel</h2>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/admin/logs">Logs</a>
+        <a href="/logout">Logout</a>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <h1>Admin Dashboard</h1>
+        <p>Welcome, {{ session.username }}</p>
+
+        <div class="stats">
+            <div class="card">
+                <h3>Total Users</h3>
+                <p>{{ total_users }}</p>
+            </div>
+
+            <div class="card">
+                <h3>Total Generations</h3>
+                <p>{{ total_logs }}</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Generation by User</h3>
+            <canvas id="userChart"></canvas>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const ctx = document.getElementById('userChart');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ user_stats | map(attribute=0) | list | safe }},
+            datasets: [{
+                label: 'Generations',
+                data: {{ user_stats | map(attribute=1) | list | safe }},
+                borderWidth: 2
+            }]
+        }
+    });
+</script>
+
+</body>
+</html>

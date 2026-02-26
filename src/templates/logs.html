@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Case Logs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="admin-page">
+
+<div class="layout">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h2>AI Panel</h2>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/admin/logs">Logs</a>
+        <a href="/logout">Logout</a>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <h1>Generated Test Case History</h1>
+
+        <div class="card">
+<table class="log-table">
+    <thead>
+        <tr>
+            <th style="width: 15%;">User</th>
+            <th style="width: 60%;">Requirement</th>
+            <th style="width: 25%;">Generated At</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log[0] }}</td>
+            <td class="requirement-cell">{{ log[1] }}</td>
+            <td>{{ log[2] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</body>
+</html>

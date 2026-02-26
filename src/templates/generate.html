@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Test Cases</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body class="user-page">
+
+<!-- AI Background -->
+<div id="particles-js"></div>
+
+<div class="user-container">
+
+    <div class="user-header">
+        <h1>AI Test Case Generator <span class="ai-badge">AI Powered</span></h1>
+        <a href="/logout">Logout</a>
+    </div>
+
+    <div class="generate-card">
+        <h2>Generate Test Cases</h2>
+
+        <form method="POST" onsubmit="showLoading()">
+
+            <label>Enter Requirements</label>
+            <textarea name="requirements" rows="5" required></textarea>
+
+            <button type="submit">Generate</button>
+
+            <!-- AI Loading -->
+            <div id="ai-loading" class="ai-loading" style="display:none;">
+                <div class="spinner"></div>
+                <p>Generating with AI...</p>
+            </div>
+
+        </form>
+
+        {% if preview %}
+            <div class="preview">
+                <h3>Preview</h3>
+                <pre>{{ preview }}</pre>
+                <a href="/download" class="download-btn">Download PDF</a>
+            </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+<script>
+particlesJS("particles-js", {
+  particles: {
+    number: { value: 60 },
+    size: { value: 3 },
+    color: { value: "#14b8a6" },
+    line_linked: {
+      enable: true,
+      distance: 150,
+      color: "#14b8a6",
+      opacity: 0.4,
+      width: 1
+    },
+    move: { speed: 2 }
+  }
+});
+</script>
+
+<script>
+function showLoading() {
+    document.getElementById("ai-loading").style.display = "block";
+}
+</script>
+
+</body>
+</html>
