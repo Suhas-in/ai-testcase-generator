@@ -50,8 +50,8 @@ def initialize_database():
     cursor.execute("""
     INSERT OR IGNORE INTO users (username, password, role)
     VALUES 
-    ('admin', 'admin123', 'admin'),
-    ('tester', 'test123', 'user')
+    ('admin@gmail.com', 'admin@123', 'admin'),
+    ('demo@gmail.com', 'demo@123', 'user')
     """)
 
     conn.commit()
