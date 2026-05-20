@@ -11,7 +11,7 @@ genai.configure(
 )
 
 # Load Gemini model
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-pro")
 
 
 def generate_test_cases_from_text(requirement_text, mode="fast"):
