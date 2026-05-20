@@ -15,10 +15,13 @@ app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
 # DATABASE PATH
 # =========================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_DIR = os.path.join(BASE_DIR, "..", "database")
-DB_PATH = os.path.join(DB_DIR, "app.db")
 
-# Create DB folder if not exists
+DB_DIR = os.path.join(BASE_DIR, "..", "database")
+
+# NEW DATABASE FILE
+DB_PATH = os.path.join(DB_DIR, "app_v2.db")
+
+# Create database folder
 os.makedirs(DB_DIR, exist_ok=True)
 
 # =========================
@@ -27,6 +30,7 @@ os.makedirs(DB_DIR, exist_ok=True)
 def initialize_database():
 
     conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
 
     # USERS TABLE
@@ -39,7 +43,7 @@ def initialize_database():
     )
     """)
 
-    # TEST CASE LOGS
+    # TEST CASE LOGS TABLE
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS test_case_logs (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,9 +62,10 @@ def initialize_database():
     """)
 
     conn.commit()
+
     conn.close()
 
-# Initialize database
+# Initialize DB
 initialize_database()
 
 # =========================
@@ -72,9 +77,11 @@ def login():
     if request.method == "POST":
 
         username = request.form["username"]
+
         password = request.form["password"]
 
         conn = sqlite3.connect(DB_PATH)
+
         cursor = conn.cursor()
 
         cursor.execute(
@@ -89,13 +96,14 @@ def login():
         if user:
 
             session["username"] = username
+
             session["role"] = user[0]
 
-            # Admin login
+            # ADMIN LOGIN
             if user[0] == "admin":
                 return redirect("/dashboard")
 
-            # User login
+            # USER LOGIN
             return redirect("/generate")
 
         return render_template(
@@ -115,17 +123,20 @@ def dashboard():
         return redirect("/")
 
     conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
 
-    # Total users
+    # Total Users
     cursor.execute("SELECT COUNT(*) FROM users")
+
     total_users = cursor.fetchone()[0]
 
-    # Total generated test cases
+    # Total Logs
     cursor.execute("SELECT COUNT(*) FROM test_case_logs")
+
     total_logs = cursor.fetchone()[0]
 
-    # User stats
+    # User Stats
     cursor.execute("""
         SELECT username, COUNT(*) as count
         FROM test_case_logs
@@ -135,7 +146,7 @@ def dashboard():
 
     user_stats = cursor.fetchall()
 
-    # Recent logs
+    # Recent Logs
     cursor.execute("""
         SELECT username, requirements, created_at
         FROM test_case_logs
@@ -169,25 +180,27 @@ def generate():
     if request.method == "POST":
 
         raw_text = request.form.get("requirements")
+
         mode = request.form.get("mode", "fast")
 
         if raw_text:
 
             try:
 
-                # Generate PDF + Preview
+                # Generate AI Testcases
                 file_path, preview = generate_pdf_from_text(
                     raw_text,
                     mode
                 )
 
-                # Save PDF path in session
+                # Save PDF path
                 session["pdf_path"] = file_path
 
                 # =========================
-                # SAVE LOGS INTO DATABASE
+                # SAVE TO DATABASE
                 # =========================
                 conn = sqlite3.connect(DB_PATH)
+
                 cursor = conn.cursor()
 
                 cursor.execute("""
@@ -200,6 +213,7 @@ def generate():
                 ))
 
                 conn.commit()
+
                 conn.close()
 
             except Exception as e:
@@ -221,6 +235,7 @@ def view_logs():
         return redirect("/")
 
     conn = sqlite3.connect(DB_PATH)
+
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -271,7 +286,7 @@ def logout():
     return redirect("/")
 
 # =========================
-# RUN FLASK APP
+# RUN APP
 # =========================
 if __name__ == "__main__":
 
