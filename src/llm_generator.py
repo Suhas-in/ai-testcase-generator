@@ -15,14 +15,16 @@ def generate_test_cases_from_text(requirement_text, mode="fast"):
 
     test_cases = []
 
-    # Split multiple requirements line by line
+    # Split requirements line by line
     lines = requirement_text.strip().split("\n")
 
     tc_id = 1
 
     for line in lines:
 
-        if line.strip():
+        requirement = line.strip()
+
+        if requirement:
 
             prompt = f"""
 You are a Senior QA Engineer.
@@ -30,21 +32,19 @@ You are a Senior QA Engineer.
 Generate detailed software test cases for the following requirement.
 
 Requirement:
-{line.strip()}
+{requirement}
 
 Generate:
 1. Positive Test Cases
 2. Negative Test Cases
 3. Edge Cases
 
-Return response in clean structured format.
-
-Include:
+Format the response clearly with:
 - Scenario
 - Steps
 - Expected Result
 
-Make test cases realistic and unique to the requirement.
+Make the test cases realistic, unique, and professional.
 """
 
             try:
@@ -69,9 +69,8 @@ Make test cases realistic and unique to the requirement.
 
                 test_cases.append({
                     "id": f"TC_{tc_id}",
-                    "scenario": line.strip(),
-                    "steps": ai_output,
-                    "expected": "AI-generated successfully"
+                    "scenario": requirement,
+                    "generated_output": ai_output
                 })
 
                 tc_id += 1
@@ -80,9 +79,8 @@ Make test cases realistic and unique to the requirement.
 
                 test_cases.append({
                     "id": f"TC_{tc_id}",
-                    "scenario": line.strip(),
-                    "steps": "AI generation failed",
-                    "expected": str(e)
+                    "scenario": requirement,
+                    "generated_output": f"AI generation failed: {str(e)}"
                 })
 
                 tc_id += 1
