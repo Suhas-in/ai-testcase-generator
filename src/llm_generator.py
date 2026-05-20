@@ -11,14 +11,13 @@ genai.configure(
 )
 
 # Load Gemini model
-model = genai.GenerativeModel("gemini-pro")
+model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
 
 def generate_test_cases_from_text(requirement_text, mode="fast"):
 
     test_cases = []
 
-    # Split requirements line by line
     lines = requirement_text.strip().split("\n")
 
     tc_id = 1
@@ -32,22 +31,19 @@ def generate_test_cases_from_text(requirement_text, mode="fast"):
             prompt = f"""
 You are a Senior QA Engineer.
 
-Generate detailed software test cases for the following requirement.
+Generate software test cases for:
 
-Requirement:
 {requirement}
 
-Generate:
-1. Positive Test Cases
-2. Negative Test Cases
-3. Edge Cases
+Include:
+1. Positive Test Case
+2. Negative Test Case
+3. Edge Case
 
-Format clearly with:
-- Scenario
-- Steps
-- Expected Result
-
-Make output professional and realistic.
+Format:
+Scenario:
+Steps:
+Expected Result:
 """
 
             try:
@@ -67,7 +63,7 @@ Make output professional and realistic.
                 test_cases.append({
                     "id": f"TC_{tc_id}",
                     "scenario": requirement,
-                    "generated_output": f"Gemini API Error: {str(e)}"
+                    "generated_output": f"Gemini Error: {str(e)}"
                 })
 
             tc_id += 1
