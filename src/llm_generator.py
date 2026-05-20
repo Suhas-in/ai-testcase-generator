@@ -1,16 +1,13 @@
-import google.generativeai as genai
+from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
-# Load environment variables
 load_dotenv()
 
-# Configure Gemini
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-
-# Load model
-model = genai.GenerativeModel("gemini-1.5-flash")
-
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.getenv("OPENROUTER_API_KEY")
+)
 
 def generate_test_cases_from_text(requirement_text, mode="fast"):
 
@@ -22,49 +19,63 @@ def generate_test_cases_from_text(requirement_text, mode="fast"):
 
     for line in lines:
 
-        requirement = line.strip()
-
-        if requirement:
+        if line.strip():
 
             prompt = f"""
 You are a Senior QA Engineer.
 
-Generate UNIQUE and REALISTIC software test cases.
+Generate REALISTIC software test cases.
 
 Requirement:
-{requirement}
+{line.strip()}
 
 Generate:
-1. Positive Test Case
-2. Negative Test Case
-3. Edge Test Case
+1. Positive Test Cases
+2. Negative Test Cases
+3. Edge Cases
 
 Format properly with:
-Scenario
-Steps
-Expected Result
+- Scenario
+- Steps
+- Expected Result
 
-Make output specific to the requirement.
+Make response unique for the requirement.
 """
 
             try:
 
-                response = model.generate_content(prompt)
+                response = client.chat.completions.create(
+                    model="mistralai/mistral-7b-instruct",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are an expert QA engineer."
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    temperature=0.7,
+                    max_tokens=800
+                )
 
-                ai_output = response.text
+                ai_output = response.choices[0].message.content
 
                 test_cases.append({
                     "id": f"TC_{tc_id}",
-                    "scenario": requirement,
-                    "generated_output": ai_output
+                    "scenario": line.strip(),
+                    "steps": ai_output,
+                    "expected": "Generated Successfully"
                 })
 
             except Exception as e:
 
                 test_cases.append({
                     "id": f"TC_{tc_id}",
-                    "scenario": requirement,
-                    "generated_output": f"Gemini Error: {str(e)}"
+                    "scenario": line.strip(),
+                    "steps": f"AI generation failed: {str(e)}",
+                    "expected": "Error"
                 })
 
             tc_id += 1
