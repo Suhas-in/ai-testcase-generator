@@ -1,6 +1,6 @@
 flask
-gunicorn
-requests
-reportlab
+openai
 python-dotenv
-google-generativeai
+reportlab
+requests
+gunicorn
