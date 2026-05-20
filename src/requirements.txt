@@ -3,3 +3,4 @@ gunicorn
 requests
 reportlab
 openai
+python-dotenv
