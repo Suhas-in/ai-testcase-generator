@@ -2,17 +2,21 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
+# Load environment variables
 load_dotenv()
 
+# OpenRouter client
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=os.getenv("OPENROUTER_API_KEY")
 )
 
+
 def generate_test_cases_from_text(requirement_text, mode="fast"):
 
     test_cases = []
 
+    # Split requirements line by line
     lines = requirement_text.strip().split("\n")
 
     tc_id = 1
@@ -24,7 +28,7 @@ def generate_test_cases_from_text(requirement_text, mode="fast"):
             prompt = f"""
 You are a Senior QA Engineer.
 
-Generate REALISTIC software test cases.
+Generate detailed and realistic software test cases.
 
 Requirement:
 {line.strip()}
@@ -34,22 +38,22 @@ Generate:
 2. Negative Test Cases
 3. Edge Cases
 
-Format properly with:
+Format clearly with:
 - Scenario
 - Steps
 - Expected Result
 
-Make response unique for the requirement.
+Make response UNIQUE to the requirement.
 """
 
             try:
 
                 response = client.chat.completions.create(
-                    model="mistralai/mistral-7b-instruct",
+                    model="openai/gpt-3.5-turbo",
                     messages=[
                         {
                             "role": "system",
-                            "content": "You are an expert QA engineer."
+                            "content": "You are an expert QA automation engineer."
                         },
                         {
                             "role": "user",
