@@ -39,18 +39,18 @@ Generate:
 2. Negative Test Cases
 3. Edge Cases
 
-Format the response clearly with:
+Format clearly with:
 - Scenario
 - Steps
 - Expected Result
 
-Make the test cases realistic, unique, and professional.
+Make the output realistic, professional, and unique.
 """
 
             try:
 
                 response = client.chat.completions.create(
-                    model="gpt-4.1-mini",
+                    model="gpt-3.5-turbo",
                     messages=[
                         {
                             "role": "system",
