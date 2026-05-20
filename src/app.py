@@ -1,72 +1,10 @@
-import sqlite3
 import os
 from flask import Flask, render_template, request, redirect, session, send_file
 from generator import generate_pdf_from_text
 
-# =========================
-# APP CONFIG
-# =========================
 app = Flask(__name__)
 
-# Secret Key
-app.secret_key = os.environ.get("SECRET_KEY", "supersecretkey")
-
-# =========================
-# DATABASE PATH
-# =========================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-DB_DIR = os.path.join(BASE_DIR, "..", "database")
-
-# NEW DATABASE FILE
-DB_PATH = os.path.join(DB_DIR, "app_v2.db")
-
-# Create database folder
-os.makedirs(DB_DIR, exist_ok=True)
-
-# =========================
-# DATABASE INIT
-# =========================
-def initialize_database():
-
-    conn = sqlite3.connect(DB_PATH)
-
-    cursor = conn.cursor()
-
-    # USERS TABLE
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL,
-        role TEXT NOT NULL
-    )
-    """)
-
-    # TEST CASE LOGS TABLE
-    cursor.execute("""
-    CREATE TABLE IF NOT EXISTS test_case_logs (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT,
-        requirements TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
-
-    # DEFAULT USERS
-    cursor.execute("""
-    INSERT OR IGNORE INTO users (username, password, role)
-    VALUES
-    ('admin@gmail.com', 'admin@123', 'admin'),
-    ('demo@gmail.com', 'demo@123', 'user')
-    """)
-
-    conn.commit()
-
-    conn.close()
-
-# Initialize DB
-initialize_database()
+app.secret_key = "supersecretkey"
 
 # =========================
 # LOGIN PAGE
@@ -77,33 +15,11 @@ def login():
     if request.method == "POST":
 
         username = request.form["username"]
-
         password = request.form["password"]
 
-        conn = sqlite3.connect(DB_PATH)
-
-        cursor = conn.cursor()
-
-        cursor.execute(
-            "SELECT role FROM users WHERE username=? AND password=?",
-            (username, password)
-        )
-
-        user = cursor.fetchone()
-
-        conn.close()
-
-        if user:
-
-            session["username"] = username
-
-            session["role"] = user[0]
-
-            # ADMIN LOGIN
-            if user[0] == "admin":
-                return redirect("/dashboard")
-
-            # USER LOGIN
+        # SIMPLE LOGIN
+        if username == "admin" and password == "admin":
+            session["user"] = username
             return redirect("/generate")
 
         return render_template(
@@ -114,65 +30,12 @@ def login():
     return render_template("login.html")
 
 # =========================
-# ADMIN DASHBOARD
-# =========================
-@app.route("/dashboard")
-def dashboard():
-
-    if session.get("role") != "admin":
-        return redirect("/")
-
-    conn = sqlite3.connect(DB_PATH)
-
-    cursor = conn.cursor()
-
-    # Total Users
-    cursor.execute("SELECT COUNT(*) FROM users")
-
-    total_users = cursor.fetchone()[0]
-
-    # Total Logs
-    cursor.execute("SELECT COUNT(*) FROM test_case_logs")
-
-    total_logs = cursor.fetchone()[0]
-
-    # User Stats
-    cursor.execute("""
-        SELECT username, COUNT(*) as count
-        FROM test_case_logs
-        GROUP BY username
-        ORDER BY count DESC
-    """)
-
-    user_stats = cursor.fetchall()
-
-    # Recent Logs
-    cursor.execute("""
-        SELECT username, requirements, created_at
-        FROM test_case_logs
-        ORDER BY created_at DESC
-        LIMIT 10
-    """)
-
-    recent_logs = cursor.fetchall()
-
-    conn.close()
-
-    return render_template(
-        "dashboard.html",
-        total_users=total_users,
-        total_logs=total_logs,
-        user_stats=user_stats,
-        recent_logs=recent_logs
-    )
-
-# =========================
 # GENERATE TEST CASES
 # =========================
 @app.route("/generate", methods=["GET", "POST"])
 def generate():
 
-    if session.get("role") != "user":
+    if "user" not in session:
         return redirect("/")
 
     preview = None
@@ -187,34 +50,12 @@ def generate():
 
             try:
 
-                # Generate AI Testcases
                 file_path, preview = generate_pdf_from_text(
                     raw_text,
                     mode
                 )
 
-                # Save PDF path
                 session["pdf_path"] = file_path
-
-                # =========================
-                # SAVE TO DATABASE
-                # =========================
-                conn = sqlite3.connect(DB_PATH)
-
-                cursor = conn.cursor()
-
-                cursor.execute("""
-                    INSERT INTO test_case_logs
-                    (username, requirements)
-                    VALUES (?, ?)
-                """, (
-                    session.get("username"),
-                    raw_text
-                ))
-
-                conn.commit()
-
-                conn.close()
 
             except Exception as e:
 
@@ -226,40 +67,12 @@ def generate():
     )
 
 # =========================
-# ADMIN LOGS PAGE
-# =========================
-@app.route("/admin/logs")
-def view_logs():
-
-    if session.get("role") != "admin":
-        return redirect("/")
-
-    conn = sqlite3.connect(DB_PATH)
-
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT username, requirements, created_at
-        FROM test_case_logs
-        ORDER BY created_at DESC
-    """)
-
-    logs = cursor.fetchall()
-
-    conn.close()
-
-    return render_template(
-        "logs.html",
-        logs=logs
-    )
-
-# =========================
 # DOWNLOAD PDF
 # =========================
 @app.route("/download")
 def download():
 
-    if session.get("role") != "user":
+    if "user" not in session:
         return redirect("/")
 
     file_path = session.get("pdf_path")
