@@ -79,32 +79,32 @@ Make the output realistic, professional, and unique.
 
                 # Fallback demo mode
                 demo_output = f"""
-Scenario: {requirement}
+<b>Scenario:</b> {requirement}<br/><br/>
 
-Positive Test Case:
-1. Open application
-2. Navigate to relevant module
-3. Enter valid input
-4. Perform action
-5. Verify successful response
+<b>Positive Test Case:</b><br/>
+1. Open application<br/>
+2. Navigate to relevant module<br/>
+3. Enter valid input<br/>
+4. Perform action<br/>
+5. Verify successful response<br/><br/>
 
-Expected Result:
-System should successfully complete the operation.
+<b>Expected Result:</b><br/>
+System should successfully complete the operation.<br/><br/>
 
-Negative Test Case:
-1. Enter invalid or empty input
-2. Perform action
-3. Verify validation message
+<b>Negative Test Case:</b><br/>
+1. Enter invalid or empty input<br/>
+2. Perform action<br/>
+3. Verify validation message<br/><br/>
 
-Expected Result:
-System should display proper validation error.
+<b>Expected Result:</b><br/>
+System should display proper validation error.<br/><br/>
 
-Edge Test Case:
-1. Enter boundary or unusual input
-2. Perform action
-3. Observe system behavior
+<b>Edge Test Case:</b><br/>
+1. Enter boundary or unusual input<br/>
+2. Perform action<br/>
+3. Observe system behavior<br/><br/>
 
-Expected Result:
+<b>Expected Result:</b><br/>
 System should handle edge cases properly.
 """
 
