@@ -1,14 +1,21 @@
 from openai import OpenAI
+from dotenv import load_dotenv
 import os
 
+# Load environment variables
+load_dotenv()
+
+# Initialize OpenAI client
 client = OpenAI(
     api_key=os.getenv("OPENAI_API_KEY")
 )
+
 
 def generate_test_cases_from_text(requirement_text, mode="fast"):
 
     test_cases = []
 
+    # Split multiple requirements line by line
     lines = requirement_text.strip().split("\n")
 
     tc_id = 1
@@ -20,21 +27,24 @@ def generate_test_cases_from_text(requirement_text, mode="fast"):
             prompt = f"""
 You are a Senior QA Engineer.
 
-Generate software test cases for the following requirement:
+Generate detailed software test cases for the following requirement.
 
 Requirement:
 {line.strip()}
 
 Generate:
-1. Positive Test Case
-2. Negative Test Case
-3. Edge Case
+1. Positive Test Cases
+2. Negative Test Cases
+3. Edge Cases
 
-Return ONLY in this exact format:
+Return response in clean structured format.
 
-Scenario:
-Steps:
-Expected Result:
+Include:
+- Scenario
+- Steps
+- Expected Result
+
+Make test cases realistic and unique to the requirement.
 """
 
             try:
@@ -44,14 +54,15 @@ Expected Result:
                     messages=[
                         {
                             "role": "system",
-                            "content": "You are an expert software QA engineer."
+                            "content": "You are an expert QA automation engineer."
                         },
                         {
                             "role": "user",
                             "content": prompt
                         }
                     ],
-                    temperature=0.7
+                    temperature=0.7,
+                    max_tokens=1000
                 )
 
                 ai_output = response.choices[0].message.content
@@ -60,7 +71,7 @@ Expected Result:
                     "id": f"TC_{tc_id}",
                     "scenario": line.strip(),
                     "steps": ai_output,
-                    "expected": "Generated successfully using AI"
+                    "expected": "AI-generated successfully"
                 })
 
                 tc_id += 1
