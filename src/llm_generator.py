@@ -1,17 +1,28 @@
-import google.generativeai as genai
+import requests
 from dotenv import load_dotenv
 import os
 
 # Load environment variables
 load_dotenv()
 
-# Configure Gemini API
-genai.configure(
-    api_key=os.getenv("GEMINI_API_KEY")
-)
+HF_API_KEY = os.getenv("HF_API_KEY")
 
-# Load Gemini model
-model = genai.GenerativeModel("gemini-1.5-flash-latest")
+API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-large"
+
+headers = {
+    "Authorization": f"Bearer {HF_API_KEY}"
+}
+
+
+def query(payload):
+
+    response = requests.post(
+        API_URL,
+        headers=headers,
+        json=payload
+    )
+
+    return response.json()
 
 
 def generate_test_cases_from_text(requirement_text, mode="fast"):
@@ -31,16 +42,17 @@ def generate_test_cases_from_text(requirement_text, mode="fast"):
             prompt = f"""
 You are a Senior QA Engineer.
 
-Generate software test cases for:
+Generate realistic and unique software test cases.
 
+Requirement:
 {requirement}
 
-Include:
+Generate:
 1. Positive Test Case
 2. Negative Test Case
-3. Edge Case
+3. Edge Test Case
 
-Format:
+Format clearly with:
 Scenario:
 Steps:
 Expected Result:
@@ -48,9 +60,17 @@ Expected Result:
 
             try:
 
-                response = model.generate_content(prompt)
+                output = query({
+                    "inputs": prompt
+                })
 
-                ai_output = response.text
+                if isinstance(output, list):
+
+                    ai_output = output[0]["generated_text"]
+
+                else:
+
+                    ai_output = str(output)
 
                 test_cases.append({
                     "id": f"TC_{tc_id}",
@@ -63,7 +83,7 @@ Expected Result:
                 test_cases.append({
                     "id": f"TC_{tc_id}",
                     "scenario": requirement,
-                    "generated_output": f"Gemini Error: {str(e)}"
+                    "generated_output": f"HuggingFace Error: {str(e)}"
                 })
 
             tc_id += 1
